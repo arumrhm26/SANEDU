@@ -1,0 +1,26 @@
+@baseUrl = https://kuroyama.id/service/get-account-info
+
+POST {{baseUrl}}
+Host: kuroyama.id
+Cookie: session=eyJ1c2VyX2lkIjo0NDYyfQ.ZsCEDw.rCZT770BWlNAN94jU8MLzxYAgVQ
+Content-Length: 24
+Sec-Ch-Ua: "Chromium";v="127", "Not)A;Brand";v="99"
+Accept-Language: en-GB
+Sec-Ch-Ua-Mobile: ?0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.6533.100 Safari/537.36
+Content-Type: application/json;charset=UTF-8
+Accept: */*
+X-Requested-With: XMLHttpRequest
+Sec-Ch-Ua-Platform: "Windows"
+Origin: https://kuroyama.id
+Sec-Fetch-Site: same-origin
+Sec-Fetch-Mode: cors
+Sec-Fetch-Dest: empty
+Referer: https://kuroyama.id/page?name=services
+Accept-Encoding: gzip, deflate, br
+Priority: u=1, i
+
+{
+    "id": "129314932",
+    "server": "2651"
+}
