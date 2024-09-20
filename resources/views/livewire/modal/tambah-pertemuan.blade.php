@@ -82,7 +82,10 @@
                            type="date"
                            wire:model="tanggal"
                            placeholder="Tanggal"
-                           onfocus="this.showPicker()"
+                           x-ref="tanggal"
+                           @click="
+                                $refs.tanggal.showPicker() ? $refs.tanggal.showPicker() : null;
+                            "
                            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-1.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500" />
 
                     <x-input-error :messages="$errors->get('tanggal')"
@@ -101,7 +104,10 @@
                     <input type="time"
                            wire:model="waktu_mulai"
                            placeholder="Jam"
-                           onfocus="this.showPicker()"
+                           x-ref="waktu_mulai"
+                           @click="
+                                $refs.waktu_mulai.showPicker() ? $refs.waktu_mulai.showPicker() : null;
+                            "
                            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-1.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500" />
 
                     <x-input-error :messages="$errors->get('waktu_mulai')"
@@ -120,7 +126,10 @@
                     <input type="time"
                            wire:model="waktu_selesai"
                            placeholder="Jam"
-                           onfocus="this.showPicker()"
+                           x-ref="waktu_selesai"
+                           @click="
+                                $refs.waktu_selesai.showPicker() ? $refs.waktu_selesai.showPicker() : null;
+                           "
                            class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-1.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500" />
 
                     <x-input-error :messages="$errors->get('waktu_selesai')"

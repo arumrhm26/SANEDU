@@ -8,7 +8,7 @@
         <div class="flex items-center gap-3 p-4 font-semibold">
             <x-antdesign-user-o class="h-10 w-10" />
             <h3>
-                Guru
+                Tentor
             </h3>
         </div>
 
@@ -55,6 +55,10 @@
                         </th>
                         <th scope="col"
                             class="px-6 py-3">
+                            No WA
+                        </th>
+                        <th scope="col"
+                            class="px-6 py-3">
                             Nama Bank
                         </th>
                         <th scope="col"
@@ -83,6 +87,10 @@
                             <td scope="col"
                                 class="px-6 py-3">
                                 {{ $user->email }}
+                            </td>
+                            <td scope="col"
+                                class="px-6 py-3">
+                                {{ $user->teacher->no_wa }}
                             </td>
                             <td scope="col"
                                 class="px-6 py-3">

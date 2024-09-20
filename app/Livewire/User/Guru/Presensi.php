@@ -23,6 +23,10 @@ class Presensi extends Component
 {
     use WithPagination, WithPerPage, WithSearch, WithRefreshList;
     public $tahunAjaranId;
+    public $tahunAjarans;
+
+    public $bulans;
+    public $bulan;
 
     public function updatedTahunAjaranId()
     {
@@ -30,7 +34,10 @@ class Presensi extends Component
             ->where('tahun_ajaran_id', $this->tahunAjaranId)
             ->get();
 
-        $this->reset('classRoomId', 'subject', 'materi');
+        $this->bulans = $this->getBulanFromTahunAjaran($this->tahunAjaranId);
+        $this->bulan = $this->bulans[0]->id ?? null;
+
+        $this->reset('classRoomId', 'subject', 'materi',);
     }
 
     public $classRoomId;
@@ -109,12 +116,35 @@ class Presensi extends Component
         $this->dispatch('refresh-list');
     }
 
+    public function getBulanFromTahunAjaran($tahunAjaranId)
+    {
+        $tahunAjaran = TahunAjaran::find($tahunAjaranId);
 
+        if (!$tahunAjaran) {
+            return [];
+        }
+
+        return $tahunAjaran->getBulan();
+    }
+
+    public function exportPDF()
+    {
+        if (!$this->tahunAjaranId || !$this->bulan) {
+            return;
+        }
+
+        return redirect()->route('rekapan-absen-perbulan.pdf', [
+            'tahunAjaran' => $this->tahunAjaranId,
+            'bulan' => $this->bulan,
+        ]);
+    }
 
     public function mount()
     {
 
         $now = now();
+
+        $this->tahunAjarans = TahunAjaran::all();
 
         $this->tahunAjaranId = TahunAjaran::query()
             ->where('mulai', '<=', $now->format('Y-m-d'))
@@ -125,6 +155,9 @@ class Presensi extends Component
             $this->classRooms = ClassRoom::query()
                 ->where('tahun_ajaran_id', $this->tahunAjaranId)
                 ->get();
+
+            $this->bulans = $this->getBulanFromTahunAjaran($this->tahunAjaranId);
+            $this->bulan = $this->bulans[0]->id ?? null;
         }
     }
 
@@ -150,10 +183,16 @@ class Presensi extends Component
                         });
                     })
 
-                    ->whereHas('materi.subject.classRoom', function ($query) {
-                        $query->where('tahun_ajaran_id', $this->tahunAjaranId);
-                    })
+                    // ->whereHas('materi.subject.classRoom', function ($query) {
+                    //     $query->where('tahun_ajaran_id', $this->tahunAjaranId);
+                    // })
 
+                    ->when($this->bulan != null, function ($query) {
+                        $query->whereMonth('tanggal', $this->bulan);
+                        $query->whereHas('materi.subject.classRoom.tahunAjaran', function ($query) {
+                            $query->where('id', $this->tahunAjaranId);
+                        });
+                    })
 
                     ->latest()
                     ->paginate($this->perPage),

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\User\OrangTua;
 
+use App\Models\Cabang;
 use App\Models\ClassRoomStudent;
 use App\Models\Materi;
 use App\Models\Student;
@@ -23,37 +24,73 @@ class PorgresPembelajaranSiswa extends Component
     use WithPagination, WithPerPage, WithSearch;
 
     public $tahunAjaran;
+
+    public $cabang;
+
+    public $isDouble;
+
     public $classRoomStudent;
 
     public $authStudent;
 
     public function updatedTahunAjaran()
     {
-        $this->classRoomStudent = ClassRoomStudent::where('student_id', $this->authStudent->id)->where('tahun_ajaran_id', $this->tahunAjaran)->first();
+
+        $this->classRoomStudent = ClassRoomStudent::query()
+            ->where('student_id', $this->authStudent->id)
+            ->where('tahun_ajaran_id', $this->tahunAjaran)
+            ->whereHas(
+                'classRoom',
+                function ($query) {
+                    $query->where('cabang_id', $this->cabang);
+                }
+            )
+            ->first();
 
         if ($this->classRoomStudent)
             $this->subjects = Subject::where('class_room_id', $this->classRoomStudent->class_room_id)->get();
 
+        $this->reset('subject');
+
         // $this->subjects = Subject::where('class_room_id', $this->classRoomStudent->class_room_id)->get();
     }
+
+    public $cabangs;
+
+    public function updatedCabang()
+    {
+
+        $this->classRoomStudent = ClassRoomStudent::query()
+            ->where('student_id', $this->authStudent->id)
+            ->where('tahun_ajaran_id', $this->tahunAjaran)
+            ->whereHas(
+                'classRoom',
+                function ($query) {
+                    $query->where('cabang_id', $this->cabang);
+                }
+            )
+            ->first();
+
+
+        $this->subjects = Subject::where('class_room_id', $this->classRoomStudent?->class_room_id)->get();
+    }
+
 
     public $subject;
 
     public $subjects = [];
 
-    public function updatedSubject()
+    public function exportPDF()
     {
-        $this->materis = Materi::where('subject_id', $this->subject)->get();
+        if (!$this->subject) {
+            return;
+        }
+
+        $subject = Subject::find($this->subject);
+
+        return redirect()->route('siswa.progres-pembelajaran.pdf', $subject);
     }
 
-    public $materi;
-
-    public $materis = [];
-
-    public function updatedMateri()
-    {
-        $this->resetPage();
-    }
 
     public function mount()
     {
@@ -64,6 +101,11 @@ class PorgresPembelajaranSiswa extends Component
             Auth::user()->studentParent->child->id
         )->first();
 
+        $this->isDouble = false;
+
+        $this->cabangs = Cabang::all();
+
+
         $now = now();
 
         $this->tahunAjaran = TahunAjaran::where('mulai', '<=', $now)->where('selesai', '>=', $now)->first()->id;
@@ -71,18 +113,16 @@ class PorgresPembelajaranSiswa extends Component
         $this->classRoomStudent = ClassRoomStudent::where('student_id', $this->authStudent->id)->where('tahun_ajaran_id', $this->tahunAjaran)->first();
 
         if ($this->classRoomStudent) {
+
+            // cek apakah classroom student lebih dari 1?
+            $this->isDouble = ClassRoomStudent::where('student_id', $this->authStudent->id)->where('tahun_ajaran_id', $this->tahunAjaran)->count() > 1;
+
+            $this->cabang = $this->classRoomStudent->classRoom->cabang_id;
             $this->subjects = Subject::where('class_room_id', $this->classRoomStudent->class_room_id)->get();
         }
     }
 
-    public function exportPDF()
-    {
-        if (!$this->materi) {
-            return;
-        }
 
-        return redirect()->route('siswa.progres-pembelajaran.pdf', $this->materi);
-    }
 
     public function render()
     {
@@ -91,10 +131,8 @@ class PorgresPembelajaranSiswa extends Component
                 ->whereHas('student', function ($query) {
                     $query->where('id', $this->authStudent->id);
                 })
-                ->whereHas('indikator', function ($query) {
-                    $query->whereHas('materi', function ($query) {
-                        $query->where('id', $this->materi);
-                    });
+                ->whereHas('indikator.materi.subject', function ($query) {
+                    $query->where('id', $this->subject);
                 })
                 ->paginate($this->perPage)
         ]);

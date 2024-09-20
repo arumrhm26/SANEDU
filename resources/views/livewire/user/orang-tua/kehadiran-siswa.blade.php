@@ -8,15 +8,26 @@
         <h2 class="text-lg font-semibold text-gray-600">Kehadiran Siswa</h2>
     </div>
 
-    <div class="p-5 flex flex-col justify-start sm:flex-row sm:justify-end">
+    <div class="p-5 flex flex-col justify-start sm:flex-row sm:justify-end sm:gap-x-2">
         <livewire:select2 name="tahun-ajaran"
-                          :options="App\Models\TahunAjaran::all()"
+                          :options="$tahunAjarans"
                           wire:model.live='tahunAjaran'
-                          :key="App\Models\TahunAjaran::all()->pluck('id')->join('-')" />
+                          :key="$tahunAjarans->pluck('id')->join('-')" />
+
+        <livewire:select2 name="bulan"
+                          :options="$bulans"
+                          wire:model.live='bulan'
+                          :key="$tahunAjaran . '-tahunAjaran'" />
+
     </div>
 
     <div class="px-5 flex justify-end">
-        <button class="bg-positive px-5 py-2 text-white rounded shadow"
+        <button @class([
+            'px-5 py-2 text-white rounded shadow',
+            'bg-gray-400' =>
+                $tahunAjaran == '-' || $tahunAjaran == null || $tahunAjaran == '',
+            'bg-positive' => $tahunAjaran,
+        ])
                 wire:click='exportPDF'>
             Export
         </button>

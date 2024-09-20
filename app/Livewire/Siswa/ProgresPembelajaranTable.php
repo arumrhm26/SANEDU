@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Siswa;
 
+use App\Models\Cabang;
 use App\Models\ClassRoom;
 use App\Models\ClassRoomStudent;
 use App\Models\Materi;
@@ -21,13 +22,51 @@ class ProgresPembelajaranTable extends Component
     use WithPagination, WithPerPage, WithSearch;
 
     public $tahunAjaran;
+
+    public $isDouble;
+
+    public $cabang;
+
     public $classRoomStudent;
 
     public $authStudent;
 
     public function updatedTahunAjaran()
     {
-        $this->classRoomStudent = ClassRoomStudent::where('student_id', $this->authStudent->student->id)->where('tahun_ajaran_id', $this->tahunAjaran)->first();
+
+
+        $this->classRoomStudent = ClassRoomStudent::query()
+            ->where('student_id', $this->authStudent->student->id)
+            ->where('tahun_ajaran_id', $this->tahunAjaran)
+            ->whereHas(
+                'classRoom',
+                function ($query) {
+                    $query->where('cabang_id', $this->cabang);
+                }
+            )
+            ->first();
+
+        $this->subjects = Subject::where('class_room_id', $this->classRoomStudent?->class_room_id)->get();
+
+        $this->reset('subject');
+    }
+
+    public $cabangs;
+
+    public function updatedCabang()
+    {
+
+        $this->classRoomStudent = ClassRoomStudent::query()
+            ->where('student_id', $this->authStudent->student->id)
+            ->where('tahun_ajaran_id', $this->tahunAjaran)
+            ->whereHas(
+                'classRoom',
+                function ($query) {
+                    $query->where('cabang_id', $this->cabang);
+                }
+            )
+            ->first();
+
 
         $this->subjects = Subject::where('class_room_id', $this->classRoomStudent?->class_room_id)->get();
     }
@@ -36,32 +75,25 @@ class ProgresPembelajaranTable extends Component
 
     public $subjects = [];
 
-    public function updatedSubject()
-    {
-        $this->materis = Materi::where('subject_id', $this->subject)->get();
-    }
-
-    public $materi;
-
-    public $materis = [];
-
-    public function updatedMateri()
-    {
-        $this->resetPage();
-    }
 
     public function exportPDF()
     {
-        if (!$this->materi) {
+        if (!$this->subject) {
             return;
         }
 
-        return redirect()->route('siswa.progres-pembelajaran.pdf', $this->materi);
+        $subject = Subject::find($this->subject);
+
+        return redirect()->route('siswa.progres-pembelajaran.pdf', $subject);
     }
 
     public function mount()
     {
         $this->authStudent = Auth::user();
+
+        $this->isDouble = false;
+
+        $this->cabangs = Cabang::all();
 
         $now = now();
 
@@ -69,7 +101,13 @@ class ProgresPembelajaranTable extends Component
 
         $this->classRoomStudent = ClassRoomStudent::where('student_id', $this->authStudent->student->id)->where('tahun_ajaran_id', $this->tahunAjaran)->first();
 
+
         if ($this->classRoomStudent) {
+
+            // cek apakah classroom student lebih dari 1
+            $this->isDouble = ClassRoomStudent::where('student_id', $this->authStudent->student->id)->where('tahun_ajaran_id', $this->tahunAjaran)->count() > 1;
+
+            $this->cabang = $this->classRoomStudent->classRoom->cabang_id;
             $this->subjects = Subject::where('class_room_id', $this->classRoomStudent->class_room_id)->get();
         }
     }
@@ -82,10 +120,8 @@ class ProgresPembelajaranTable extends Component
                 ->whereHas('student', function ($query) {
                     $query->where('id', $this->authStudent->student->id);
                 })
-                ->whereHas('indikator', function ($query) {
-                    $query->whereHas('materi', function ($query) {
-                        $query->where('id', $this->materi);
-                    });
+                ->whereHas('indikator.materi.subject', function ($query) {
+                    $query->where('id', $this->subject);
                 })
                 ->paginate($this->perPage)
         ]);

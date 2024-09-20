@@ -17,10 +17,25 @@ class KehadiranSiswa extends Component
 {
 
     use WithPagination, WithPerPage, WithSearch;
-
+    public $tahunAjarans;
     public $tahunAjaran;
 
+    public $bulans;
+    public $bulan;
+
     public $studentUser;
+
+    public function updatedTahunAjaran()
+    {
+        $tahunAjaran = TahunAjaran::find($this->tahunAjaran);
+        if (!$tahunAjaran) {
+            return;
+        }
+
+        $this->bulans = $tahunAjaran->getBulan();
+
+        $this->reset('bulan');
+    }
 
     public function exportPDF()
     {
@@ -39,7 +54,15 @@ class KehadiranSiswa extends Component
         )->first();
 
         $now = now();
-        $this->tahunAjaran = TahunAjaran::where('mulai', '<=', $now)->where('selesai', '>=', $now)->first()->id;
+        $this->tahunAjarans = TahunAjaran::all();
+        $this->tahunAjaran = TahunAjaran::query()
+            ->where('mulai', '<=', $now)
+            ->where('selesai', '>=', $now)
+            ->first()->id ?? null;
+
+        if ($this->tahunAjaran) {
+            $this->bulans = TahunAjaran::find($this->tahunAjaran)->getBulan();
+        }
     }
 
     public function render()
@@ -59,6 +82,11 @@ class KehadiranSiswa extends Component
                                 $query->where('tahun_ajaran_id', $this->tahunAjaran);
                             });
                         });
+                    });
+                })
+                ->when($this->bulan, function ($query) {
+                    $query->whereHas('pertemuan', function ($query) {
+                        $query->whereMonth('tanggal', $this->bulan);
                     });
                 })
                 ->latest()

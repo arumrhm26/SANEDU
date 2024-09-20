@@ -39,12 +39,14 @@
 
             <x-text-input class="form-input border-none rounded-md w-full"
                           name="password"
+                          id="password"
                           type="password" />
             <x-input-error :messages="$errors->get('password')"
                            class="-mt-2" />
 
             <x-text-input class="form-input border-none rounded-md w-full"
                           name="password_confirmation"
+                          id="password-confirmation"
                           placeholder="Konfirmasi Password"
                           type="password" />
             <x-input-error :messages="$errors->get('password_confirmation')"
@@ -60,7 +62,7 @@
             <a href="{{ route('register') }}"
                class="text-primary-900 underline">Register Siswa</a>
             <a href="{{ route('register.guru') }}"
-               class="text-primary-900 underline">Register Guru</a>
+               class="text-primary-900 underline">Register Tentor</a>
         </div>
     </form>
 

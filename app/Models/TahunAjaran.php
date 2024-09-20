@@ -32,4 +32,27 @@ class TahunAjaran extends Model
             return $classRoom->teacherCount();
         })->sum();
     }
+
+    public function getBulan()
+    {
+        $mulai = $this->mulai;
+        $selesai = $this->selesai;
+
+        $start = new \DateTime($mulai);
+        $end = new \DateTime($selesai);
+
+        $interval = \DateInterval::createFromDateString('1 month');
+        $period = new \DatePeriod($start, $interval, $end);
+
+        $bulans = [];
+        foreach ($period as $dt) {
+            $bulans[] = (object) [
+                // delete 0 in front of bulan
+                'id' => ltrim($dt->format("m"), '0'),
+                'name' => $dt->format("F"),
+            ];
+        }
+
+        return $bulans;
+    }
 }

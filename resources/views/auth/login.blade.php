@@ -124,7 +124,7 @@
                             Siswa
                         </x-register.dropdown.dropdown-link>
                         <x-register.dropdown.dropdown-link href="{{ route('register.guru') }}">
-                            Guru
+                            Tentor
                         </x-register.dropdown.dropdown-link>
                         <x-register.dropdown.dropdown-link href="{{ route('register.orang-tua') }}">
                             Orang Tua

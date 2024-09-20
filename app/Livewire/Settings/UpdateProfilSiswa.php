@@ -20,7 +20,7 @@ class UpdateProfilSiswa extends Component
             'cabang_id' => ['required', 'integer'],
         ]);
 
-        Auth::user()->student()->update([
+        Auth::user()->student->update([
             'asal_sekolah' => $validated['asal_sekolah'],
             'cabang_id' => $validated['cabang_id'],
         ]);

@@ -7,24 +7,35 @@
         <livewire:select2 name="tahun-ajaran"
                           :options="App\Models\TahunAjaran::all()"
                           wire:model.live='tahunAjaran'
-                          :key="App\Models\TahunAjaran::all()->pluck('id')->join('-')" />
+                          :key="App\Models\TahunAjaran::all()->pluck('id')->join('-tahunajaran')" />
+
+        @if ($isDouble)
+            <livewire:select2 name="cabang"
+                              :options="$cabangs"
+                              wire:model.live='cabang'
+                              :key="$cabangs->pluck('id')->join('-cabang')" />
+        @endif
 
         <livewire:select2 name="mata-pelajaran"
                           :options="$subjects"
                           wire:model.live='subject'
                           key="
-                            {{ !empty($subjects) ? $subjects->pluck('id')->join('-') : null }}" />
+                            {{ !empty($subjects) ? $subjects->pluck('id')->join('-mapel') : null }}" />
 
-        <livewire:select2 name="materi"
+        {{-- <livewire:select2 name="materi"
                           :options="$materis"
                           wire:model.live='materi'
                           key="
-                                {{ !empty($materis) ? $materis->pluck('id')->join('-') : null }}" />
+                                {{ !empty($materis) ? $materis->pluck('id')->join('-materi') : null }}" /> --}}
 
     </div>
 
     <div class="px-5 flex justify-end">
-        <button class="bg-positive px-5 py-2 text-white rounded shadow"
+        <button @class([
+            'px-5 py-2 text-white rounded shadow',
+            'bg-gray-400' => $subject == '-' || $subject == null || $subject == '',
+            'bg-positive' => $subject,
+        ])
                 wire:click='exportPDF'>
             Export
         </button>
@@ -34,6 +45,10 @@
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-white divide-y divide-gray-200">
                 <tr class="odd:bg-white  even:bg-gray-100  border-b text-left">
+                    <th scope="col"
+                        class="px-6 py-3">
+                        Materi
+                    </th>
                     <th scope="col"
                         class="px-6 py-3">
                         Kode
@@ -56,6 +71,10 @@
             <tbody class="bg-white divide-y divide-gray-200 ">
                 @forelse ($studentIndikators as $studentIndikator)
                     <tr class="odd:bg-white  even:bg-gray-100 ">
+                        <td scope="col"
+                            class="px-6 py-3">
+                            {{ $studentIndikator->indikator?->materi?->name ?? '-' }}
+                        </td>
                         <td scope="col"
                             class="px-6 py-3">
                             {{ $studentIndikator->indikator?->code ?? '-' }}

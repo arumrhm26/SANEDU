@@ -7,19 +7,39 @@
         <h2 class="text-lg font-semibold text-gray-600">Progres Pembelajaran</h2>
     </div>
 
-    <div class="p-5 flex flex-col gap-2 sm:flex-row sm:justify-end ">
+    <div class="p-5 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
 
-        <livewire:select2 name="tahun-ajaran"
-                          :options="App\Models\TahunAjaran::all()"
-                          wire:model.live='tahunAjaran'
-                          :key="App\Models\TahunAjaran::all()->pluck('id')->join('-') . 'tahun-ajaran'" />
+        <div class="flex gap-2">
+            <x-primary-button wire:click="$dispatch('openModal', {
+                component: 'modal.tambah-materi-guru',
+            })"
+                              class="text-sm bg-primary-800">
+                Tambah Materi
+            </x-primary-button>
+            <x-primary-button wire:click="$dispatch('openModal', {
+                component: 'modal.tambah-indikator-guru',
+            })"
+                              class="text-sm bg-primary-800">
+                Tambah Indikator
+            </x-primary-button>
+        </div>
 
-        {{-- Select Mata Pelajaran --}}
-        <livewire:select2-subject name="mata-pelajaran"
-                                  :options="$subjects"
-                                  wire:model.live='subject'
-                                  :key="!empty($subjects) ? $subjects?->pluck('id')->join('-') . 'mapel' : null" />
-        {{-- End Select Mata Pelajaran --}}
+        <div class="flex gap-2">
+
+            <livewire:select2 name="tahun-ajaran"
+                              :options="App\Models\TahunAjaran::all()"
+                              wire:model.live='tahunAjaran'
+                              :key="App\Models\TahunAjaran::all()->pluck('id')->join('-') . 'tahun-ajaran'" />
+
+            {{-- Select Mata Pelajaran --}}
+            <livewire:select2-subject name="mata-pelajaran"
+                                      :options="$subjects"
+                                      wire:model.live='subject'
+                                      :key="!empty($subjects)
+                                          ? $subjects?->pluck('id')->join('-') . 'mapel'
+                                          : null" />
+            {{-- End Select Mata Pelajaran --}}
+        </div>
 
     </div>
 

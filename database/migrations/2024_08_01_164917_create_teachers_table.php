@@ -16,6 +16,7 @@ return new class extends Migration
 
             $table->string('rekening_bank')->nullable();
             $table->string('no_rekening')->nullable();
+            $table->string('no_wa')->nullable();
 
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->timestamps();

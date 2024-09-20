@@ -43,23 +43,24 @@ class StudentAddeddToClassRoom implements ShouldQueue
         foreach ($students as $student) {
             DB::beginTransaction();
             try {
+                $data = collect($indikators)->map(function ($indikator) use ($student) {
+
+                    // check if student already have indikator
+                    $studentIndikator = $student->studentIndikators()
+                        ->where('indikator_id', $indikator)
+                        ->first();
+
+                    if ($studentIndikator) {
+                        return;
+                    }
+
+                    return [
+                        'indikator_id' => $indikator,
+                        'nilai' => 0,
+                    ];
+                });
                 $student->studentIndikators()->createMany(
-                    collect($indikators)->map(function ($indikator) use ($student) {
-
-                        // check if student already have indikator
-                        $studentIndikator = $student->studentIndikators()
-                            ->where('indikator_id', $indikator)
-                            ->first();
-
-                        if ($studentIndikator) {
-                            return;
-                        }
-
-                        return [
-                            'indikator_id' => $indikator,
-                            'nilai' => 0,
-                        ];
-                    })
+                    $data->filter(fn($item) => $item !== null)->toArray()
                 );
                 DB::commit();
                 Log::info("Student " . $student->user->name . " added to class room " . $this->classRoom->full_name);

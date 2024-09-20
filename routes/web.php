@@ -38,10 +38,15 @@ Route::group(
     ],
 
     function () {
-        Route::get('/download-progres-pembelajaran/{materi}', [PDFController::class, 'progresPembelajaran'])->name('siswa.progres-pembelajaran.pdf');
+        Route::get('/download-progres-pembelajaran/{subject}', [PDFController::class, 'progresPembelajaran'])->name('siswa.progres-pembelajaran.pdf');
         Route::get('/download-riwayat-kehadiran/{tahunAjaran}', [PDFController::class, 'riwayatKehadiran'])->name('siswa.riwayat-kehadiran.pdf');
         Route::get('/download-rekapan-absen/{pertemuan}', [PDFController::class, 'rekapanAbsen'])->name('rekapan-absen.pdf');
+
+        Route::get('/download-rekapan-absen-perbulan/{tahunAjaran}/{bulan}', [PDFController::class, 'rekapanAbsePerbulan'])->name('rekapan-absen-perbulan.pdf');
+
         Route::get('/download-rekapan-progres/{materi}', [PDFController::class, 'rekapanProgres'])->name('rekapan-progres.pdf');
+
+
         Route::get('/download-rekapan-progres-guru/{subject}', [PDFController::class, 'rekapanProgresGuru'])->name('rekapan-progres-guru.pdf');
     }
 );

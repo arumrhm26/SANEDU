@@ -1,7 +1,7 @@
 <div class="p-5">
     <header class="font-bold text-lg">
         <h2>
-            {{ __('Edit Guru') }}
+            {{ __('Edit Tentor') }}
         </h2>
     </header>
     <form wire:submit="save">

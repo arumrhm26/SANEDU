@@ -72,6 +72,11 @@ Breadcrumbs::for('admin.absen', function (BreadcrumbTrail $trail) {
     $trail->push('Absen', route('admin.absen'));
 });
 
+Breadcrumbs::for('admin.absen.rekapan', function (BreadcrumbTrail $trail) {
+    $trail->parent('admin.absen');
+    $trail->push('Rekapan', route('admin.absen.rekapan'));
+});
+
 Breadcrumbs::for('admin.absen.show', function (BreadcrumbTrail $trail, Pertemuan $pertemuan) {
     $trail->parent('admin.absen');
     $trail->push($pertemuan->materi->name, route('admin.absen.show', $pertemuan));

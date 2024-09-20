@@ -40,7 +40,7 @@
             <img src="{{ Vite::asset('resources/images/user.png') }}">
         </x-slot>
         <x-slot name="title">
-            Jumlah Guru
+            Jumlah Tentor
         </x-slot>
     </x-admin.card>
 </div>

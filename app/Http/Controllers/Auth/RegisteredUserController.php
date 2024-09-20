@@ -92,7 +92,8 @@ class RegisteredUserController extends Controller
         if ($prevUrl === 'guru') {
             $request->validate([
                 'rekening_bank' => ['required', 'string', 'max:255'],
-                'no_rekening' => ['required', 'string', 'max:255'],
+                'no_rekening' => ['required', 'integer'],
+                'no_wa' => ['required', 'integer'],
             ]);
         }
 

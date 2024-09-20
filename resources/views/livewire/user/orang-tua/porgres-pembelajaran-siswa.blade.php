@@ -15,22 +15,33 @@
                           wire:model.live='tahunAjaran'
                           :key="App\Models\TahunAjaran::all()->pluck('id')->join('-')" />
 
+        @if ($isDouble)
+            <livewire:select2 name="cabang"
+                              :options="$cabangs"
+                              wire:model.live='cabang'
+                              :key="$cabangs->pluck('id')->join('-cabang')" />
+        @endif
+
         <livewire:select2 name="mata-pelajaran"
                           :options="$subjects"
                           wire:model.live='subject'
                           key="
                             {{ !empty($subjects) ? $subjects->pluck('id')->join('-') : null }}" />
 
-        <livewire:select2 name="materi"
+        {{-- <livewire:select2 name="materi"
                           :options="$materis"
                           wire:model.live='materi'
                           key="
-                                {{ !empty($materis) ? $materis->pluck('id')->join('-') : null }}" />
+                                {{ !empty($materis) ? $materis->pluck('id')->join('-') : null }}" /> --}}
 
     </div>
 
     <div class="px-5 flex justify-end">
-        <button class="bg-positive px-5 py-2 text-white rounded shadow"
+        <button @class([
+            'px-5 py-2 text-white rounded shadow',
+            'bg-gray-400' => $subject == '-' || $subject == null || $subject == '',
+            'bg-positive' => $subject,
+        ])
                 wire:click='exportPDF'>
             Export
         </button>

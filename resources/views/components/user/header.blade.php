@@ -7,8 +7,18 @@
         @else
             User
         @endauth
-
     </h1>
+    @role('orangtua')
+        <h1 class="text-base">
+            Wali Siswa
+            @auth
+                {{ auth()->user()->studentParent?->child?->name ?? '' }}
+            @else
+                Siswa
+            @endauth
+        </h1>
+    @endrole
+
     <h2 class="text-xl">Selamat datang di Sistem Akademik Sanedu</h2>
 </div>
 

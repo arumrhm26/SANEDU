@@ -7,7 +7,7 @@
 
         <div class="bg-[#D9D9D9] p-10 rounded-xl min-w-full md:min-w-96 flex flex-col gap-3">
 
-            <h1 class="font-bold text-center text-2xl mb-5">Register Guru</h1>
+            <h1 class="font-bold text-center text-2xl mb-5">Register Tentor</h1>
 
             <x-text-input class="form-input border-none rounded-md w-full"
                           name="name"
@@ -34,13 +34,21 @@
             <x-input-error :messages="$errors->get('no_rekening')" />
 
             <x-text-input class="form-input border-none rounded-md w-full"
+                          name="no_wa"
+                          :value="old('no_wa')"
+                          placeholder="No WhatsApp" />
+            <x-input-error :messages="$errors->get('no_wa')" />
+
+            <x-text-input class="form-input border-none rounded-md w-full"
                           name="password"
+                          id="password"
                           type="password" />
             <x-input-error :messages="$errors->get('password')" />
 
             <x-text-input class="form-input border-none rounded-md w-full"
                           name="password_confirmation"
                           placeholder="Konfirmasi Password"
+                          id="password-confirmation"
                           type="password" />
             <x-input-error :messages="$errors->get('password_confirmation')" />
 

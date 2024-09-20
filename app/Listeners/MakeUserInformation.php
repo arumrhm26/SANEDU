@@ -62,6 +62,7 @@ class MakeUserInformation
         $user->teacher()->create([
             'rekening_bank' => $event->input['rekening_bank'],
             'no_rekening' => $event->input['no_rekening'],
+            'no_wa' => $event->input['no_wa'],
         ]);
     }
 }

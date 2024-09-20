@@ -20,6 +20,10 @@
                         {{ $option->full_name }}
                     @break
 
+                    @case('cabang')
+                        {{ $option->nama }}
+                    @break
+
                     @default
                         {{ $option->name }}
                 @endswitch

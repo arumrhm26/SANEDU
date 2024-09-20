@@ -56,7 +56,7 @@
             <a href="{{ route('register.orang-tua') }}"
                class="text-primary-900 underline">Register Orang Tua</a>
             <a href="{{ route('register.guru') }}"
-               class="text-primary-900 underline">Register Guru</a>
+               class="text-primary-900 underline">Register Tentor</a>
         </div>
     </form>
 

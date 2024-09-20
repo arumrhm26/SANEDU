@@ -30,6 +30,7 @@
                         label: "# Jumlah Siswa",
                         data: @json($chart['data']),
                         borderWidth: 1,
+
                     }, ],
                 },
 
@@ -37,8 +38,12 @@
                     scales: {
                         y: {
                             beginAtZero: true,
+                            suggestedMax: 50,
+
                         },
+
                     },
+
                     backgroundColor: "#063970",
                     responsive: true,
                 },

@@ -8,6 +8,7 @@
                                class="font-semibold" />
                 <div>
                     <x-text-input type="password"
+                                  id="password"
                                   wire:model="password" />
                     <x-input-error class="mt-2"
                                    :messages="$errors->get('password')" />
@@ -19,6 +20,7 @@
                                class="font-semibold" />
                 <div>
                     <x-text-input type="password"
+                                  id="password-confirmation"
                                   wire:model="password_confirmation" />
                     <x-input-error class="mt-2"
                                    :messages="$errors->get('password_confirmation')" />

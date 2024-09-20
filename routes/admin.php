@@ -4,6 +4,7 @@ use App\Livewire\Admin as LivewireAdmin;
 use App\Livewire\Admin\User as LivewireAdminUser;
 use App\Livewire\Admin\ProgresSiswa as LivewireAdminKelolaProgres;
 use App\Http\Controllers\AdminController;
+use App\Livewire\Admin\Absen\RekapanAbsen;
 use App\Livewire\Admin\Absen\RekapanAbsen\DetailAbsen;
 use App\Livewire\Admin\User\Kelas\DetailMataPelajaran;
 use App\Livewire\Admin\User\Kelas\DetailSiswa;
@@ -45,6 +46,7 @@ Route::group(
         Route::prefix('absen')->group(
             function () {
                 Route::get('/', LivewireAdmin\Absensi::class)->name('admin.absen');
+                Route::get('/rekapan', RekapanAbsen::class)->name('admin.absen.rekapan');
                 Route::get('/{pertemuan}', DetailAbsen::class)->name('admin.absen.show');
             }
         );

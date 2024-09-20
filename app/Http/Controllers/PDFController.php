@@ -18,10 +18,13 @@ use Illuminate\Support\Facades\Auth;
 
 class PDFController extends Controller
 {
-    public function progresPembelajaran(Request $request, Materi $materi)
+    public function progresPembelajaran(Request $request, Subject $subject)
     {
         // check if logged in user is a student or parent
-        if (Auth::user()->getRoleNames()->first() != 'siswa' && Auth::user()->getRoleNames()->first() != 'orangtua') {
+        if (
+            Auth::user()->getRoleNames()->first() != 'siswa' &&
+            Auth::user()->getRoleNames()->first() != 'orangtua'
+        ) {
             return redirect()->back();
         }
 
@@ -30,21 +33,35 @@ class PDFController extends Controller
 
         $studentIndikators = StudentIndikator::query()
             ->where('student_id', $studentId)
-            ->whereHas('indikator.materi', function ($query) use ($materi) {
-                $query->where('id', $materi->id);
+            ->whereHas('indikator.materi.subject', function ($query) use ($subject) {
+                $query->where('id', $subject->id);
             })
             ->get();
 
-        $pdf = PDF::loadView('pdf.progres-pembelajaran', compact('studentIndikators', 'materi', 'studentId', 'studentName'));
+        // melakukan grouping indikator berdasarkan materi
+        $studentIndikators = $studentIndikators->groupBy('indikator.materi_id');
 
-        $name = $studentName . '_' . $materi->subject->name . $materi->name . '.pdf';
+        $pdf = PDF::loadView(
+            'pdf.progres-pembelajaran',
+            compact(
+                'studentIndikators',
+                'subject',
+                'studentId',
+                'studentName'
+            )
+        );
+
+        $name = $studentName . '_' . $subject->name . '.pdf';
 
         return $pdf->download($name);
     }
 
     public function riwayatKehadiran(Request $request, TahunAjaran $tahunAjaran)
     {
-        if (Auth::user()->getRoleNames()->first() != 'siswa' && Auth::user()->getRoleNames()->first() != 'orangtua') {
+        if (
+            Auth::user()->getRoleNames()->first() != 'siswa' &&
+            Auth::user()->getRoleNames()->first() != 'orangtua'
+        ) {
             return redirect()->back();
         }
 
@@ -61,7 +78,16 @@ class PDFController extends Controller
 
         $classRoomStudent = ClassRoomStudent::where('student_id', $studentId)->where('tahun_ajaran_id', $tahunAjaran->id)->first();
 
-        $pdf = PDF::loadView('pdf.riwayat-kehadiran', compact('pertemuanStudents', 'tahunAjaran', 'classRoomStudent', 'studentId', 'studentName'));
+        $pdf = PDF::loadView(
+            'pdf.riwayat-kehadiran',
+            compact(
+                'pertemuanStudents',
+                'tahunAjaran',
+                'classRoomStudent',
+                'studentId',
+                'studentName'
+            )
+        );
 
         $name = $studentName . '_' . $tahunAjaran->name . '.pdf';
 
@@ -171,6 +197,109 @@ class PDFController extends Controller
             foreach ($materis as $materi) {
                 $fileName = "{$tahunAjaranName}_{$classRoomName}_{$subjectName}_{$materi->name}.pdf";
                 unlink(storage_path("app/{$fileName}"));
+            }
+        }
+
+        return response()->download(storage_path("app/{$zipFileName}"))->deleteFileAfterSend(true);
+    }
+
+    public function rekapanAbsenPerbulan(
+        Request $request,
+        TahunAjaran $tahunAjaran,
+        $bulan
+    ) {
+
+        $pertemuans = Pertemuan::query()
+            ->whereHas('materi.subject.classRoom.tahunAjaran', function ($query) use ($tahunAjaran) {
+                $query->where('id', $tahunAjaran->id);
+            })
+            ->when($bulan, function ($query) use ($bulan) {
+                $query->whereMonth('tanggal', $bulan);
+            })
+            ->get();
+
+        if ($pertemuans->isEmpty()) {
+            return redirect()->back();
+        }
+
+        // jika yang mengakses fungsi ini memiliki role teacher maka filter pertemuan yang diajar oleh teacher tersebut
+        if (Auth::user()->getRoleNames()->first() == 'guru') {
+
+            // dd($pertemuan->materi->subject->teacher->user->id);
+
+            $pertemuans = $pertemuans->filter(function ($pertemuan) {
+                return $pertemuan?->materi?->subject?->teacher?->user?->id == Auth::id();
+            });
+        }
+
+        // group pertemuan by class room
+        $classRoomPertemuans = $pertemuans->groupBy('materi.subject.class_room_id');
+
+        $tahunAjaranName = $tahunAjaran?->name;
+
+        // menkonversi bulan menjadi nama bulan
+        $bulan = date('F', mktime(0, 0, 0, $bulan, 10));
+
+        $createdPdfs = [];
+
+        foreach ($classRoomPertemuans as $classRoomId => $pertemuans) {
+
+            $classRoom = ClassRoom::find($classRoomId);
+            $classRoomName = $classRoom->full_name;
+
+            // group pertemuan by subject
+            $subjectPertemuans = $pertemuans->groupBy('materi.subject_id');
+
+            foreach ($subjectPertemuans as $subjectId => $pertemuans) {
+
+                $subject = Subject::find($subjectId);
+                $subjectName = $subject->name;
+
+
+                $pertemuanStudents = PertemuanStudent::query()
+                    ->whereIn('pertemuan_id', $pertemuans->pluck('id'))
+                    ->get();
+
+                // group pertemuans by materi
+                $materiPertemuans = $pertemuans->groupBy('materi_id');
+
+
+
+                $pdf = PDF::loadView('pdf.rekapan-absen-perbulan', compact('pertemuanStudents', 'materiPertemuans', 'tahunAjaranName', 'pertemuans', 'classRoomName', 'subjectName', 'bulan', 'subject'));
+
+                $fileName = "{$tahunAjaranName}_{$classRoomName}_{$subjectName}_{$bulan}.pdf";
+
+                // clean name from special characters
+                $name = str_replace('/', '-', $fileName);
+
+                $pdf->save(storage_path("app/{$name}"));
+
+                $createdPdfs[] = $name;
+            }
+        }
+
+
+
+
+        $zip = new \ZipArchive();
+        $zipFileName = "Rekapan_Absen_{$tahunAjaranName}_{$bulan}.zip";
+
+        // remove / from tahun ajaran name
+        $zipFileName = str_replace('/', '-', $zipFileName);
+
+
+        if ($zip->open(storage_path("app/{$zipFileName}"), \ZipArchive::CREATE) === TRUE) {
+
+            // dd($createdPdfs);
+
+            foreach ($createdPdfs as $pdf) {
+                $zip->addFile(storage_path("app/{$pdf}"), $pdf);
+            }
+
+            $zip->close();
+
+            foreach ($createdPdfs as $pdf) {
+                unlink(storage_path("app/{$pdf}"));
             }
         }
 

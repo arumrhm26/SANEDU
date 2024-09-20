@@ -17,7 +17,7 @@
                 Verifikasi Akun
             </x-admin.sidebar-dropdown-button>
             <x-admin.sidebar-dropdown-button href="{{ route('admin.guru') }}">
-                Guru
+                Tentor
             </x-admin.sidebar-dropdown-button>
             <x-admin.sidebar-dropdown-button href="{{ route('admin.siswa') }}">
                 Siswa
@@ -50,9 +50,9 @@
             <x-admin.sidebar-dropdown-button href="{{ route('admin.rekapan-progres-siswa') }}">
                 Rekapan Progres Siswa
             </x-admin.sidebar-dropdown-button>
-            <x-admin.sidebar-dropdown-button href="{{ route('admin.hasil-progres-siswa') }}">
+            {{-- <x-admin.sidebar-dropdown-button href="{{ route('admin.hasil-progres-siswa') }}">
                 Hasil Progres Siswa
-            </x-admin.sidebar-dropdown-button>
+            </x-admin.sidebar-dropdown-button> --}}
         </x-admin.sidebar-dropdown-container>
     </ul>
 </div>

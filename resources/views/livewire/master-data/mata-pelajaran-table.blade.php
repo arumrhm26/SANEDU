@@ -60,7 +60,7 @@
                     </th>
                     <th scope="col"
                         class="px-6 py-3">
-                        Nama Guru
+                        Nama Tentor
                     </th>
                     <th scope="col"
                         class="px-6 py-3">

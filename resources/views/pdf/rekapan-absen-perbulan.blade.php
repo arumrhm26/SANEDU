@@ -66,21 +66,15 @@
                 Tentor
             </td>
             <td>
-                : {{ $pertemuan->materi->subject?->teacher->user->name ?? '-' }}
+                : {{ $subject?->teacher?->user?->name ?? '-' }}
             </td>
         </tr>
         <tr>
             <td>
-                Tanggal
+                Bulan
             </td>
             <td>
-                : {{ $pertemuan->tanggal->isoFormat('DD-MM-Y') }}
-            </td>
-            <td>
-                Materi
-            </td>
-            <td>
-                : {{ $pertemuan->materi->name }}
+                : {{ $bulan }}
             </td>
         </tr>
     </table>
@@ -97,26 +91,48 @@
             </tr>
         </thead>
         <tbody>
+            @forelse ($materiPertemuans as $pertemuans)
+                @forelse ($pertemuans as $pertemuan)
+                    @forelse ($pertemuan->pertemuanStudents as $item)
+                        <tr>
 
-            @forelse ($pertemuanStudents as $pertemuanStudent)
-                <tr>
-                    <td>{{ $pertemuanStudent?->pertemuan?->tanggal->isoFormat('D-MM-Y') }}</td>
-                    <td>{{ $pertemuanStudent?->pertemuan?->waktu_mulai }}</td>
-                    <td>{{ $pertemuanStudent?->pertemuan?->materi?->name }}</td>
-                    <td>{{ $pertemuanStudent?->student?->user?->name }}</td>
-                    <td>{{ $pertemuanStudent?->jam_masuk ?? '-' }}</td>
-                    <td>{{ $pertemuanStudent?->pertemuanStatus?->name ?? '-' }}</td>
-                </tr>
+                            @if ($loop->first)
+                                <td rowspan="{{ $pertemuan->pertemuanStudents->count() ?? 1 }}">
+                                    {{ $pertemuan?->tanggal->isoFormat('DD-MM-Y') ?? '-' }}
+                                </td>
+
+                                <td rowspan="{{ $pertemuan->pertemuanStudents->count() ?? 1 }}">
+                                    {{ $pertemuan?->waktu_mulai ?? '-' }}
+                                    -
+                                    {{ $pertemuan?->waktu_selesai ?? '-' }}
+                                </td>
+
+                                <td rowspan="{{ $pertemuan->pertemuanStudents->count() ?? 1 }}">
+                                    {{ $pertemuan?->materi?->name ?? '-' }}
+                                </td>
+                            @endif
+                            <td>{{ $item?->student?->user?->name ?? '-' }}</td>
+                            <td>{{ $item?->jam_masuk ?? '-' }}</td>
+                            <td>{{ $item?->pertemuanStatus?->name ?? '-' }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6">Data tidak ditemukan</td>
+                        </tr>
+                    @endforelse
+                @empty
+                    <tr>
+                        <td colspan="6">Data tidak ditemukan</td>
+                    </tr>
+                @endforelse
             @empty
                 <tr>
-                    <td colspan="6">Tidak ada data</td>
+                    <td colspan="6">Data tidak ditemukan</td>
                 </tr>
             @endforelse
-
         </tbody>
     </table>
-    <br>
+
 </body>
 
 </html>
-

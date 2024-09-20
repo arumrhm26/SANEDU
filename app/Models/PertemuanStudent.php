@@ -18,6 +18,7 @@ class PertemuanStudent extends Model
         'pertemuan_status_id',
     ];
 
+
     public function pertemuan()
     {
         return $this->belongsTo(Pertemuan::class, 'pertemuan_id', 'id');

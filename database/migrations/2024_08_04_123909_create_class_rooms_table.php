@@ -38,7 +38,7 @@ return new class extends Migration
             $table->foreignId('grade_id')->constrained('grades')->onDelete('cascade');
             $table->foreignId('tahun_ajaran_id')->constrained('tahun_ajarans')->onDelete('cascade');
 
-            $table->unique(['student_id', 'tahun_ajaran_id']);
+            // $table->unique(['student_id', 'tahun_ajaran_id']);
 
 
             $table->timestamps();

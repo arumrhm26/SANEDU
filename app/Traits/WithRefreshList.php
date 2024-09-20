@@ -10,7 +10,10 @@ trait WithRefreshList
     #[On('refresh-list')]
     public function refresh(?string $message = null)
     {
-        if ($message)
+        if ($message) {
             Toaster::success($message);
+        } else {
+            Toaster::success('Data berhasil disimpan');
+        }
     }
 }

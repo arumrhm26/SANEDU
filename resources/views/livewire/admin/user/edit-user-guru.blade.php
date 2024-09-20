@@ -22,6 +22,15 @@
                                    :messages="$errors->get('no_rekening')" />
                 </div>
             </div>
+            <div class="flex gap-1 flex-col w-full">
+                <x-input-label value="No WhatsApp"
+                               class="font-semibold" />
+                <div>
+                    <x-text-input wire:model="no_wa" />
+                    <x-input-error class="mt-2"
+                                   :messages="$errors->get('no_wa')" />
+                </div>
+            </div>
         </div>
         <div class="flex items-center justify-end gap-4 mt-2">
             <x-primary-button class="text-sm disabled:opacity-50">

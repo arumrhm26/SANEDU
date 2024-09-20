@@ -13,6 +13,7 @@ class Teacher extends Model
     protected $fillable = [
         'rekening_bank',
         'no_rekening',
+        'no_wa',
     ];
 
     // public function classRooms()

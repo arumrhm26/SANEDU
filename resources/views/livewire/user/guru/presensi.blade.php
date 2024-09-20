@@ -17,12 +17,41 @@
                                         })">
                 Tambah Pertemuan
             </x-primary-button>
+            <x-primary-button @class([
+                'text-sm',
+                'bg-gray-400' =>
+                    !$bulan ||
+                    !$tahunAjaranId ||
+                    !$pertemuans->count() ||
+                    $pertemuans->count() < 1 ||
+                    $bulan === '-' ||
+                    $tahunAjaranId === '-',
+                'bg-positive' =>
+                    $bulan &&
+                    $tahunAjaranId &&
+                    $pertemuans->count() &&
+                    $pertemuans->count() > 0 &&
+                    $bulan !== '-' &&
+                    $tahunAjaranId !== '-',
+            ])
+                              wire:click="exportPDF">
+                Export
+            </x-primary-button>
         </div>
 
-        <livewire:select2 name="tahun-ajaran"
-                          :options="App\Models\TahunAjaran::all()"
-                          wire:model.live='tahunAjaranId'
-                          :key="App\Models\TahunAjaran::all()->pluck('id')->join('-') . 'tahun-ajaran'" />
+        <div class="flex gap-x-2 items-center">
+            <livewire:select2 name="tahun-ajaran"
+                              :options="$tahunAjarans"
+                              wire:model.live='tahunAjaranId'
+                              :key="$tahunAjarans->pluck('id')->join('-') . 'tahun-ajaran'" />
+
+            <livewire:select2 name="bulan"
+                              :options="$bulans"
+                              wire:model.live='bulan'
+                              :key="$tahunAjaranId . '-bulan'" />
+
+        </div>
+
     </div>
 
     <div class="overflow-x-auto">

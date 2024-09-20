@@ -8,52 +8,87 @@
           content="width=device-width, initial-scale=1.0">
     <title>Nilai Siswa</title>
     <style>
-        font-family: Arial,
-        sans-serif;
-
-        table {
+        .table {
             width: 100%;
+            border-collapse: collapse;
         }
 
-        table,
-        th,
-        td {
+        .table>thead>tr>th {
+            padding: 4px;
+            text-align: center;
             border: 1px solid black;
             border-collapse: collapse;
         }
 
-        th,
-        td {
-            padding: 8px;
+        .table>tbody>tr>td {
+            padding: 4px;
             text-align: left;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-
-        th:not(:first-child),
-        td:not(:first-child) {
-            width: 10%;
+            border: 1px solid black;
+            border-collapse: collapse;
         }
     </style>
 </head>
 
 <body>
-    <h2>Rekapan Progres</h2>
-    <p>Tahun Ajaran: {{ $tahunAjaranName }}</p>
-    <p>Kelas: {{ $classRoomName }}</p>
-    <p>Guru: {{ $materi->subject?->teacher?->user->name ?? '-' }}</p>
-    <p>Mata Pelajaran: {{ $subjectName }}</p>
-    <p>Materi: {{ $materi->name }}</p>
 
-    <br>
-    <table>
+    <div style="margin-bottom: 50px">
+        <div style="width: 100px; height: 100px; float: left;">
+            <img src="{{ public_path('logo.png') }}"
+                 alt="logo"
+                 width="100">
+        </div>
+        <h2 style="">Rekap Perkembangan Belajar Siswa</h2>
+    </div>
+
+    <table style="width: 100%; margin-bottom: 20px;">
+        <tr>
+            <td>
+                Kelas
+            </td>
+            <td>
+                : {{ $classRoomName }}
+            </td>
+            <td>
+                Mata Pelajaran
+            </td>
+            <td>
+                : {{ $subjectName }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Tahun Ajaran
+            </td>
+            <td>
+                : {{ $tahunAjaranName }}
+            </td>
+            <td>
+                Materi
+            </td>
+            <td>
+                : {{ $materi?->name ?? '-' }}
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Tentor
+            </td>
+            <td>
+                : {{ $materi?->subject?->teacher?->user->name ?? '-' }}
+            </td>
+        </tr>
+
+    </table>
+
+    <table class="table">
         <thead>
             <tr>
                 <th>Nama Siswa</th>
                 @forelse ($indikators as $indikator)
                     <th>{{ $indikator->name }}</th>
+                    @if ($loop->last)
+                        <th>Rata-Rata</th>
+                    @endif
                 @empty
                     <th>Indikator</th>
                 @endforelse
@@ -73,6 +108,18 @@
                             @endphp
                             {{ $nilai }}
                         </td>
+                        @if ($loop->last)
+                            <td>
+                                @php
+                                    $studentIndikators = $student->studentIndikators->whereIn(
+                                        'indikator_id',
+                                        $indikators->pluck('id'),
+                                    );
+                                    $rataRata = $studentIndikators->avg('nilai');
+                                @endphp
+                                {{ $rataRata }}
+                            </td>
+                        @endif
                     @empty
                         <td>Indikator</td>
                     @endforelse

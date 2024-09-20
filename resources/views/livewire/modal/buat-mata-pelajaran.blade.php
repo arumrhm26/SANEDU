@@ -22,13 +22,13 @@
                 <div class="flex">
                     <div class="w-1/3">
                         <label for="form.teacher_id"
-                               class="font-semibold">Guru</label>
+                               class="font-semibold">Tentor</label>
                     </div>
                     <div class="w-2/3">
 
                         <select wire:model="form.teacher_id"
                                 class="block w-full rounded-lg border border-gray-300 bg-gray-50 p-1.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500">
-                            <option value="">Pilih Guru</option>
+                            <option value="">Pilih Tentor</option>
                             @foreach (App\Models\User::with('teacher')->role('guru')->get() as $user)
                                 <option value="{{ $user->teacher->id }}">{{ $user->name }}</option>
                             @endforeach
