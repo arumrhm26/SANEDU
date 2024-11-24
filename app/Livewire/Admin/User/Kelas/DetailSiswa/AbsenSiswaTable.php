@@ -34,9 +34,6 @@ class AbsenSiswaTable extends Component
                 ->whereHas('pertemuan', function ($query) {
                     $query->whereHas('materi', function ($query) {
                         $query->where('name', 'like', "%{$this->search}%");
-                        $query->whereHas('subject', function ($query) {
-                            $query->where('class_room_id', $this->classRoom->id);
-                        });
                     });
                 })
                 ->latest()

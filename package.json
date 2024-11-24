@@ -5,7 +5,7 @@
         "dev": "vite",
         "devh": "vite --host",
         "build": "vite build",
-        "start": "concurrently  \"php artisan serve\" \"npm run dev \"  "
+        "start": "concurrently  \"php artisan serve\" \"pnpm run dev \"  "
     },
     "devDependencies": {
         "@shufo/prettier-plugin-blade": "^1.14.1",

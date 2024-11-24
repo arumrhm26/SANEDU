@@ -7,22 +7,7 @@
         <h2 class="text-lg font-semibold text-gray-600">Progres Pembelajaran</h2>
     </div>
 
-    <div class="p-5 flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
-
-        <div class="flex gap-2">
-            <x-primary-button wire:click="$dispatch('openModal', {
-                component: 'modal.tambah-materi-guru',
-            })"
-                              class="text-sm bg-primary-800">
-                Tambah Materi
-            </x-primary-button>
-            <x-primary-button wire:click="$dispatch('openModal', {
-                component: 'modal.tambah-indikator-guru',
-            })"
-                              class="text-sm bg-primary-800">
-                Tambah Indikator
-            </x-primary-button>
-        </div>
+    <div class="p-5 flex flex-col gap-2 sm:flex-row sm:justify-end sm:items-center">
 
         <div class="flex gap-2">
 
@@ -39,6 +24,11 @@
                                           ? $subjects?->pluck('id')->join('-') . 'mapel'
                                           : null" />
             {{-- End Select Mata Pelajaran --}}
+
+            <livewire:select2 name="materi"
+                              :options="$materis"
+                              wire:model.live='materiId'
+                              :key="!empty($materis) ? $materis?->pluck('id')->join('-') . 'materi' : null" />
         </div>
 
     </div>
@@ -47,20 +37,10 @@
         <button class="bg-positive px-5 py-2 text-white rounded shadow disabled:bg-gray-400"
                 wire:click="exportPDF"
                 wire:loading.attr='disabled'
-                @if (empty($this->students)) disabled @endif>
+                @if (empty($this->students())) disabled @endif>
             PDF
             <div wire:loading
                  wire:target='exportPDF'>
-                <x-icons.dot-loading class="text-white" />
-            </div>
-        </button>
-        <button class="bg-positive px-5 py-2 text-white rounded shadow disabled:bg-gray-400"
-                wire:click="exportExcel"
-                wire:loading.attr='disabled'
-                @if (empty($this->students)) disabled @endif>
-            Excel
-            <div wire:loading
-                 wire:target='exportExcel'>
                 <x-icons.dot-loading class="text-white" />
             </div>
         </button>
@@ -78,10 +58,9 @@
                         class="px-6 py-3">
                         Nama
                     </th>
-                    <th scope="col"
-                        class="px-6 py-3">
-                        Kelas
-                    </th>
+                    @foreach ($this->indikators as $indikator)
+                        <th class="px-6 py-3">{{ $indikator->name }}</th>
+                    @endforeach
                     <th scope="col"
                         class="px-6 py-3">
                         Aksi
@@ -89,41 +68,50 @@
                 </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-                @forelse ($this->students as $student)
+                @forelse ($this->students() as $student)
                     <tr class="odd:bg-white  even:bg-primary-50 ">
                         <td scope="col"
                             class="px-6 py-3">
                             {{ $loop->iteration }}
                         </td>
+
                         <td scope="col"
                             class="px-6 py-3">
                             {{ $student->user->name }}
                         </td>
-                        <td scope="col"
-                            class="px-6 py-3">
-                            {{ App\Models\ClassRoom::find($classRoomId)->full_name }}
-                        </td>
+
+                        @foreach ($this->indikators as $indikator)
+                            <td class="px-6 py-3">
+                                {{ $this->getNilai($student->id, $indikator->id) ?? '-' }}
+                            </td>
+                        @endforeach
+
                         <td scope="col"
                             class="px-6 py-3">
                             <div class="flex gap-1">
-                                <a class="text-xs bg-primary-900 p-1 px-2 rounded text-white"
-                                   wire:navigate
-                                   href="{{ route('guru.progres-pembelajaran.show', [$subject, $student]) }}">
-                                    Detail
-                                </a>
+                                <button x-on:click="$dispatch('openModal', {
+                                            component: 'edit-nilai-siswa-modal',
+                                            arguments: {
+                                                student: {{ $student->id }},
+                                                materi: {{ $this->materiId }}
+                                            }
+                                        })"
+                                        @class([
+                                            'text-xs p-1 px-2 rounded text-white cursor-pointer',
+                                            'bg-gray-400' => !$this->materiId,
+                                            'bg-primary-900' => $this->materiId,
+                                        ])>
+                                    Edit
+                                </button>
                             </div>
                         </td>
                     </tr>
                 @empty
-                    <tr class="odd:bg-white  even:bg-primary-50 ">
-                        <td scope="col"
-                            class="px-6 py-3"
-                            colspan="4">
-                            <div class="text-center text-gray-600">
-                                Data tidak ditemukan
-                            </div>
-                        </td>
-                    </tr>
+                    <div class="w-full">
+                        <div class="text-center p-5">
+                            <p class="text-gray-400">Data tidak ditemukan</p>
+                        </div>
+                    </div>
                 @endforelse
             </tbody>
         </table>
@@ -134,4 +122,3 @@
     </div>
 
 </div>
-

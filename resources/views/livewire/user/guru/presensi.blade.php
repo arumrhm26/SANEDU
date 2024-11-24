@@ -72,6 +72,8 @@
                         Mata Pelajaran
                     </th>
                     <th scope="col"
+                        class="px-6 py-3">Materi</th>
+                    <th scope="col"
                         class="px-6 py-3">
                         Jam
                     </th>
@@ -95,6 +97,10 @@
                         <td scope="col"
                             class="px-6 py-3">
                             {{ $pertemuan->materi->subject->name }}
+                        </td>
+                        <td scope="col"
+                            class="px-6 py-3">
+                            {{ $pertemuan->materi->name }}
                         </td>
                         <td scope="col"
                             class="px-6 py-3">
@@ -218,4 +224,3 @@
 
     {{-- End Modal --}}
 </div>
-

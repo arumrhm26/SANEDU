@@ -6,7 +6,9 @@ use App\Exports\PertemuanExport;
 use App\Exports\ProgresSiswaExport;
 use App\Exports\ProgresSiswaExportGuru;
 use App\Models\ClassRoom;
+use App\Models\Materi;
 use App\Models\Student;
+use App\Models\StudentIndikator;
 use App\Models\Subject;
 use App\Models\TahunAjaran;
 use App\Traits\WithPerPage;
@@ -15,6 +17,8 @@ use App\Traits\WithSearch;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Maatwebsite\Excel\Facades\Excel;
@@ -25,6 +29,7 @@ class GuruProgresPembelajaran extends Component
 
     use WithPagination, WithRefreshList, WithPerPage, WithSearch;
 
+    #[Url(keep: true)]
     public $tahunAjaran;
 
     public function updatedTahunAjaran()
@@ -37,58 +42,49 @@ class GuruProgresPembelajaran extends Component
                 $query->where('id', Auth::user()->teacher->id);
             })
             ->get();
-        $this->reset('subject', 'classRoomId');
+        $this->reset('subject', 'classRoomId', 'materiId');
     }
 
+    #[Url(keep: true)]
     public $classRoomId;
+
+    #[Url(keep: true)]
     public $subject;
     public $subjects = [];
 
     public function updatedSubject($value)
     {
-        $this->reset('classRoomId');
+        $this->reset('classRoomId', 'materiId');
         $this->subject = $value;
         if ($value) {
-            $this->classRoomId = Subject::find($value)->class_room_id;
+            $this->materis = Subject::find($value)->materis;
         }
     }
 
+    #[Url(keep: true)]
+    public $materiId = null;
+    public $materis = [];
+    public $indikators = [];
 
-    public function exportExcel()
+    public function updatedMateriId($value)
     {
+        $this->materiId = $value;
+        $this->classRoomId = Materi::find($value)->subject->classRoom->id;
+        $this->indikators = Materi::find($value)->indikators;
+    }
 
-        if (!$this->subject) {
-            return;
-        }
+    public function getNilai($studentId, $indikatorId)
+    {
+        return StudentIndikator::query()
+            ->where('student_id', $studentId)
+            ->where('indikator_id', $indikatorId)
+            ->first()->nilai ?? 0;
+    }
 
-        $materis = Subject::find($this->subject)->materis;
-
-        $tahunAjaranName = TahunAjaran::find($this->tahunAjaran)->name;
-        $tahunAjaranName = str_replace('/', '-', $tahunAjaranName);
-
-        $classRoomName = Subject::find($this->subject)?->classRoom->full_name;
-        $subjectName = Subject::find($this->subject)->name;
-
-
-        foreach ($materis as $materi) {
-            Excel::store(new ProgresSiswaExportGuru($materi->id), "{$tahunAjaranName}_{$classRoomName}_{$subjectName}_{$materi->name}.xlsx");
-        }
-
-        $zip = new \ZipArchive();
-        $zipFileName = "{$tahunAjaranName}_{$classRoomName}_{$subjectName}.zip";
-
-        if ($zip->open(storage_path("app/{$zipFileName}"), \ZipArchive::CREATE) === TRUE) {
-            foreach ($materis as $materi) {
-                $zip->addFile(storage_path("app/{$tahunAjaranName}_{$classRoomName}_{$subjectName}_{$materi->name}.xlsx"), "{$materi->name}.xlsx");
-            }
-            $zip->close();
-
-            foreach ($materis as $materi) {
-                unlink(storage_path("app/{$tahunAjaranName}_{$classRoomName}_{$subjectName}_{$materi->name}.xlsx"));
-            }
-        }
-
-        return response()->download(storage_path("app/{$zipFileName}"))->deleteFileAfterSend(true);
+    #[On('updated-nilai')]
+    public function updatedNilai($studentId, $indikatorId)
+    {
+        $this->getNilai($studentId, $indikatorId);
     }
 
     public function exportPDF()
@@ -100,9 +96,6 @@ class GuruProgresPembelajaran extends Component
 
         return redirect()->route('rekapan-progres-guru.pdf', ['subject' => $this->subject]);
     }
-
-
-
 
     public function mount()
     {
@@ -122,10 +115,17 @@ class GuruProgresPembelajaran extends Component
                     $query->where('id', Auth::user()->teacher->id);
                 })
                 ->get();
+
+            if ($this->subject) {
+                $this->materis = Subject::find($this->subject)->materis;
+            }
+
+            if ($this->materiId && $this->subject) {
+                $this->indikators = Materi::find($this->materiId)->indikators;
+            }
         }
     }
 
-    #[Computed]
     public function students()
     {
         return $this->classRoomId ? Student::query()

@@ -34,6 +34,12 @@
                         class="px-6 py-3">
                         Tanggal
                     </th>
+
+                    <th scope="col"
+                        class="px-6 py-3">Mata Pelajaran</th>
+
+                    <th scope="col"
+                        class="px-6 py-3">Materi</th>
                     <th scope="col"
                         class="px-6 py-3">
                         Waktu Masuk
@@ -54,11 +60,20 @@
                     <tr class="odd:bg-white  even:bg-gray-100 ">
                         <td scope="col"
                             class="px-6 py-3">
-                            {{ $pertemuanStudent->pertemuan->tanggal->isoFormat('dddd, D MMMM Y') }}
+                            {{ $pertemuanStudent->pertemuan->tanggal->isoFormat('dddd, D MMMM Y') ?? '-' }}
                         </td>
                         <td scope="col"
                             class="px-6 py-3">
-                            {{ $pertemuanStudent->pertemuan->waktu_mulai }}
+                            {{ $pertemuanStudent->pertemuan->materi->subject->name ?? '-' }}
+                        </td>
+
+                        <td scope="col"
+                            class="px-6 py-3">
+                            {{ $pertemuanStudent->pertemuan->materi->name ?? '-' }}
+                        </td>
+                        <td scope="col"
+                            class="px-6 py-3">
+                            {{ $pertemuanStudent->pertemuan->waktu_mulai ?? '-' }}
                         </td>
                         <td scope="col"
                             class="px-6 py-3">
@@ -88,4 +103,3 @@
     </div>
 
 </div>
-

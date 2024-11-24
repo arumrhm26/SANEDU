@@ -265,7 +265,7 @@ class PDFController extends Controller
 
 
 
-                $pdf = PDF::loadView('pdf.rekapan-absen-perbulan', compact('pertemuanStudents', 'materiPertemuans', 'tahunAjaranName', 'pertemuans', 'classRoomName', 'subjectName', 'bulan', 'subject'));
+                $pdf = PDF::loadView('pdf.rekapan-absen-perbulan', compact('pertemuanStudents', 'materiPertemuans', 'tahunAjaranName', 'pertemuans', 'classRoomName', 'subjectName', 'bulan', 'subject'))->setPaper('a4', 'landscape');
 
                 $fileName = "{$tahunAjaranName}_{$classRoomName}_{$subjectName}_{$bulan}.pdf";
 

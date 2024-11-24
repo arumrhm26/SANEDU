@@ -44,10 +44,6 @@
                 wire:click="exportPDF">
             PDF
         </button>
-        <button class="bg-positive px-5 py-2 text-white rounded shadow"
-                wire:click="exportExcel">
-            Excel
-        </button>
     </div>
 
     <div class="overflow-x-auto mt-4">
@@ -67,6 +63,11 @@
                         class="px-6 py-3">
                         Status
                     </th>
+                    @forelse (App\Models\PertemuanStatus::all() as $status)
+                        <th class="px-6 py-3">{{ $status->name }}</th>
+                    @empty
+                        <th class="px-6 py-3">Data tidak ditemukan</th>
+                    @endforelse
                     <th scope="col"
                         class="px-6 py-3">
                         Aksi
@@ -88,11 +89,25 @@
                             class="px-6 py-3">
                             <x-chip-absen status="{{ $pertemuanStudent->pertemuanStatus->name }}" />
                         </td>
+
+                        @forelse (App\Models\PertemuanStatus::all() as $status)
+                            <td class="px-6 py-3">
+                                <input type="radio"
+                                       name="{{ $pertemuanStudent->id }}"
+                                       id="{{ $pertemuanStudent->id . $status->id }}"
+                                       value="{{ $status->id }}"
+                                       wire:model.live="status.{{ $pertemuanStudent->id }}"
+                                       wire:loading.attr="disabled"
+                                       {{ $status->id == $pertemuanStudent->pertemuanStatus->id ? 'checked' : '' }}>
+                            </td>
+                        @empty
+                            <td>Data tidak ditemukan</td>
+                        @endforelse
                         <td scope="col"
                             class="px-6 py-3">
                             <div class="flex gap-2">
                                 <button class="text-xs bg-primary-900 p-1 px-2 rounded text-white"
-                                        wire:click="$dispatch('open-modal', {'component': 'edit-absen-siswa', 'pertemuanStudent': {{ $pertemuanStudent }} })">
+                                        x-on:click="$refs.openModalButton.click()">
                                     Edit
                                 </button>
                             </div>
@@ -111,11 +126,14 @@
             {{ $pertemuanStudents->links() }}
         </div>
 
+        <button class="hidden"
+                x-ref="openModalButton"
+                x-on:click="$dispatch('openModal', {component: 'edit-pertemuan-modal', arguments: {
+                                                pertemuan: {{ $pertemuan }}
+                                            } })">
+
+        </button>
+
     </div>
 
-    {{-- modal --}}
-    <livewire:modal.edit-absen-siswa />
-    {{-- end modal --}}
-
 </div>
-

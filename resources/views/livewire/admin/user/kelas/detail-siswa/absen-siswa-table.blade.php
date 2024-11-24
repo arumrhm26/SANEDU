@@ -138,4 +138,3 @@
     <livewire:modal.edit-absen-siswa />
     {{-- end modal --}}
 </div>
-

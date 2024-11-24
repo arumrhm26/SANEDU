@@ -12,13 +12,13 @@
             </div>
 
             <div class="flex gap-1 items-start">
-                <button class="bg-positive px-5 py-2 text-white rounded shadow"
+                <button @class([
+                    ' px-5 py-2 text-white rounded shadow',
+                    'bg-gray-400' => !$this->materiId,
+                    'bg-positive' => $this->materiId,
+                ])
                         wire:click='exportPDF'>
                     PDF
-                </button>
-                <button class="bg-positive px-5 py-2 text-white rounded shadow"
-                        wire:click="exportExcel">
-                    Excel
                 </button>
             </div>
 
@@ -89,86 +89,63 @@
         </div>
 
         <div class="overflow-x-auto">
-            <table class="w-full text-sm text-left">
-                <thead class="text-sm bg-primary-200">
-                    <tr>
-                        <th scope="col"
-                            class="px-6 py-3 w-10">
-                            Kode
-                        </th>
-                        <th scope="col"
-                            class="px-6 py-3">
-                            Indikator Ukur
-                        </th>
-                        <th scope="col"
-                            class="px-6 py-3">
-                            Nama Siswa
-                        </th>
-                        <th scope="col"
-                            class="px-6 py-3">
-                            Nilai
-                        </th>
-                        <th scope="col"
-                            class="px-6 py-3">
-                            Pengajar
-                        </th>
-                        <th scope="col"
-                            class="px-6 py-3">
-                            Aksi
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($studentIndikators as $studentIndikator)
-                        <tr class="odd:bg-white  even:bg-primary-50  border-b ">
-                            <td scope="col"
+            @if ($this->materiId)
+                <table class="w-full text-sm text-left">
+                    <thead class="text-sm bg-primary-200">
+                        <tr>
+                            <th scope="col"
                                 class="px-6 py-3">
-                                {{ $studentIndikator->indikator?->code ?? '-' }}
-                            </td>
-                            <td scope="col"
+                                Nama Siswa
+                            </th>
+                            @forelse ($this->indikators() as $indikator)
+                                <th class="px-6 py-3">{{ $indikator->name }}</th>
+                            @empty
+                            @endforelse
+                            <th scope="col"
                                 class="px-6 py-3">
-                                {{ $studentIndikator->indikator->name }}
-                            </td>
-                            <td scope="col"
-                                class="px-6 py-3">
-                                {{ $studentIndikator->student->user->name ?? '-' }}
-                            </td>
-                            <td scope="col"
-                                class="px-6 py-3">
-                                {{ $studentIndikator->nilai ?? '-' }}
-                            </td>
-                            <td scope="col"
-                                class="px-6 py-3">
-                                {{ $studentIndikator->indikator->materi->subject?->teacher->user->name ?? '-' }}
-                            </td>
-                            <td scope="col"
-                                class="px-6 py-3">
-                                <div class="flex gap-1">
-                                    <button class="text-xs bg-primary-900 p-1 px-2 rounded text-white cursor-pointer"
-                                            wire:click="$dispatch('open-modal', { component: 'edit-progres-siswa', studentIndikator: {{ $studentIndikator }}})">
-                                        Edit
-                                    </button>
-                                </div>
-                            </td>
+                                Aksi
+                            </th>
                         </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($this->students() as $student)
+                            <tr class="odd:bg-white  even:bg-primary-50  border-b ">
+                                <td scope="col"
+                                    class="px-6 py-3">
+                                    {{ $student->user->name ?? '-' }}
+                                </td>
+                                @forelse ($this->indikators() as $indikator)
+                                    <td class="px-6 py-3">
+                                        {{ $this->getStudentIndikator($student->id, $indikator->id)->nilai ?? '-' }}
+                                    </td>
+                                @empty
+                                @endforelse
+                                <td scope="col"
+                                    class="px-6 py-3">
+                                    <div class="flex gap-1">
+                                        <button x-on:click="$dispatch('openModal', {
+                                            component: 'edit-nilai-siswa-modal',
+                                            arguments: {
+                                                student: {{ $student->id }},
+                                                materi: {{ $this->materiId }}
+                                            }
+                                        })"
+                                                class="text-xs bg-primary-900 p-1 px-2 rounded text-white cursor-pointer">
+                                            Edit
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
 
-                    @empty
+                        @empty
 
-                        <tr class="bg-white">
-                            <td class="px-6 py-4"
-                                colspan="6">
-                                Silahkan pilih filter yang sesuai
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-
-            <div class="p-4">
-
-                {{ $studentIndikators->links() }}
-
-            </div>
+                            <div class="w-full bg-white">
+                                <p class="text-center">Data tidak ditemukan</p>
+                            </div>
+                        @endforelse
+                    </tbody>
+                </table>
+            @endif
         </div>
     </div>
 
@@ -176,4 +153,3 @@
     <livewire:modal.edit-progres-siswa />
     {{-- End Modal --}}
 </div>
-

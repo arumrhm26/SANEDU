@@ -67,11 +67,5 @@ Route::group(
                 Route::get('/hasil', LivewireAdminKelolaProgres\HasilProgresSiswa::class)->name('admin.hasil-progres-siswa');
             }
         );
-
-        Route::prefix('master-data')->group(
-            function () {
-                Route::get('/', LivewireAdmin\MasterData::class)->name('admin.master-data');
-            }
-        );
     }
 );

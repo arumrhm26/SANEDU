@@ -12,6 +12,7 @@ use App\Traits\WithPerPage;
 use App\Traits\WithRefreshList;
 use App\Traits\WithSearch;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -19,22 +20,40 @@ use Livewire\WithPagination;
 class DetailAbsen extends Component
 {
 
-    use WithPagination, WithPerPage, WithSearch, WithRefreshList;
+    use WithPagination, WithPerPage, WithSearch;
 
     public Pertemuan $pertemuan;
 
-    public function exportExcel()
+    public $status = [];
+
+    public function updatedStatus($value, $index)
     {
-        $tahunAjaranName = TahunAjaran::find($this->pertemuan->materi->subject->classRoom->tahun_ajaran_id)->name;
-        // replace "/" in tahun ajaran name
-        $tahunAjaranName = str_replace('/', '-', $tahunAjaranName);
-        $classRoomName = ClassRoom::find($this->pertemuan->materi->subject->classRoom->id)->full_name;
-        $subjectName = Subject::find($this->pertemuan->materi->subject->id)->name;
-        $materiName = Materi::find($this->pertemuan->materi->id)->name;
+        $this->status[$index] = $value;
 
-        $fileName = "{$tahunAjaranName}_{$classRoomName}_{$subjectName}_{$materiName}_{$this->pertemuan->tanggal->isoFormat('D-MM-Y')}.xlsx";
+        $this->validate([
+            'status.' . $index => 'required|exists:pertemuan_statuses,id',
+        ]);
 
-        return (new PertemuanExport)->forPertemuanId($this->pertemuan->id)->download($fileName);
+        $this->pertemuan->pertemuanStudents()->find($index)->update([
+            'pertemuan_status_id' => $value,
+        ]);
+
+        $this->dispatch('refresh-list');
+    }
+
+    #[On('refresh-list')]
+    public function refresh()
+    {
+        $this->pertemuan->refresh();
+    }
+
+    #[On('closeModal')]
+    public function closeModal()
+    {
+        $this->refresh();
+        $this->status = $this->pertemuan->pertemuanStudents->mapWithKeys(function ($pertemuanStudent) {
+            return [$pertemuanStudent->id => $pertemuanStudent->pertemuan_status_id];
+        })->toArray();
     }
 
     public function exportPDF()
@@ -42,16 +61,27 @@ class DetailAbsen extends Component
         return redirect()->route('rekapan-absen.pdf', $this->pertemuan);
     }
 
+    public function mount(Pertemuan $pertemuan)
+    {
+        $this->pertemuan = $pertemuan;
+        $this->status = $this->pertemuan->pertemuanStudents->mapWithKeys(function ($pertemuanStudent) {
+            return [$pertemuanStudent->id => $pertemuanStudent->pertemuan_status_id];
+        })->toArray();
+    }
+
+
     public function render()
     {
         return view('livewire.admin.absen.rekapan-absen.detail-absen', [
             'pertemuanStudents' => $this->pertemuan->pertemuanStudents()
                 ->with(['student', 'pertemuanStatus', 'pertemuan.materi.subject', 'pertemuan.materi.subject.classRoom', 'pertemuan.materi.subject.teacher.user'])
+                ->orderBy('student_id')
                 ->whereHas('student.user', function ($query) {
                     $query->where('name', 'like', "%$this->search%");
                 })
                 ->latest()
                 ->paginate($this->perPage),
+            'pertemuan' => $this->pertemuan,
         ]);
     }
 }

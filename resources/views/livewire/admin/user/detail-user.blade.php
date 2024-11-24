@@ -16,8 +16,6 @@
         <livewire:admin.user.edit-user-guru :$user />
     @elseif ($user->hasRole('siswa'))
         <livewire:admin.user.edit-user-siswa :$user />
-    @elseif ($user->hasRole('orangtua'))
-        <livewire:admin.user.edit-user-orang-tua :$user />
     @endif
     {{-- End Detail user --}}
 
@@ -30,4 +28,3 @@
     </div>
 
 </div>
-

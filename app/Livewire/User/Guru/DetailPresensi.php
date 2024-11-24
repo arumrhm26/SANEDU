@@ -13,6 +13,7 @@ use App\Traits\WithPerPage;
 use App\Traits\WithRefreshList;
 use App\Traits\WithSearch;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -22,24 +23,49 @@ class DetailPresensi extends Component
     use WithPagination, WithSearch, WithPerPage, WithRefreshList;
     public Pertemuan $pertemuan;
 
+    public $status = [];
 
-    public function exportExcel()
+    public function updatedStatus($value, $index)
     {
-        $tahunAjaranName = TahunAjaran::find($this->pertemuan->materi->subject->classRoom->tahun_ajaran_id)->name;
-        // replace "/" in tahun ajaran name
-        $tahunAjaranName = str_replace('/', '-', $tahunAjaranName);
-        $classRoomName = ClassRoom::find($this->pertemuan->materi->subject->classRoom->id)->full_name;
-        $subjectName = Subject::find($this->pertemuan->materi->subject->id)->name;
-        $materiName = Materi::find($this->pertemuan->materi->id)->name;
+        $this->status[$index] = $value;
 
-        $fileName = "{$tahunAjaranName}_{$classRoomName}_{$subjectName}_{$materiName}_{$this->pertemuan->tanggal->isoFormat('D-MM-Y')}.xlsx";
+        $this->validate([
+            'status.' . $index => 'required|exists:pertemuan_statuses,id',
+        ]);
 
-        return (new PertemuanExport)->forPertemuanId($this->pertemuan->id)->download($fileName);
+        $this->pertemuan->pertemuanStudents()->find($index)->update([
+            'pertemuan_status_id' => $value,
+        ]);
+
+        $this->dispatch('refresh-list');
+    }
+
+    #[On('refresh-list')]
+    public function refresh()
+    {
+        $this->pertemuan->refresh();
+    }
+
+    #[On('closeModal')]
+    public function closeModal()
+    {
+        $this->refresh();
+        $this->status = $this->pertemuan->pertemuanStudents->mapWithKeys(function ($pertemuanStudent) {
+            return [$pertemuanStudent->id => $pertemuanStudent->pertemuan_status_id];
+        })->toArray();
     }
 
     public function exportPDF()
     {
         return redirect()->route('rekapan-absen.pdf', $this->pertemuan);
+    }
+
+    public function mount(Pertemuan $pertemuan)
+    {
+        $this->pertemuan = $pertemuan;
+        $this->status = $this->pertemuan->pertemuanStudents->mapWithKeys(function ($pertemuanStudent) {
+            return [$pertemuanStudent->id => $pertemuanStudent->pertemuan_status_id];
+        })->toArray();
     }
 
 
@@ -49,6 +75,7 @@ class DetailPresensi extends Component
             'pertemuanStudents' => PertemuanStudent::query()
                 ->where('pertemuan_id', $this->pertemuan->id)
                 ->with('student.user')
+                ->orderBy('student_id')
                 ->paginate($this->perPage),
         ]);
     }

@@ -74,38 +74,38 @@ class DatabaseSeeder extends Seeder
 
 
         // create 30 user and assign role exept admin and each user has random 1 role
-        // User::factory(300)->create()->each(function ($user) {
-        //     $role = Role::all()->random();
-
-        //     while ($role->name === EnumsRole::ADMIN->value) {
-        //         $role = Role::all()->random();
-        //     }
-
-        //     $user->assignRole($role->name);
-
-        //     if ($role->name === EnumsRole::SISWA->value) {
-        //         $user->student()->create([
-        //             'asal_sekolah' => fake()->company(),
-        //             'cabang_id' => fake()->randomElement(
-        //                 Cabang::all()->pluck('id')->toArray()
-        //             ),
-        //         ]);
-        //     }
-
-        //     if ($role->name === EnumsRole::GURU->value) {
-        //         $user->teacher()->create([
-        //             'rekening_bank' => fake()->randomElement(['BRI', 'BCA', 'BNI', 'Mandiri']),
-        //             'no_rekening' => fake()->bankAccountNumber(),
-        //         ]);
-        //     }
-
-        //     if ($role->name === EnumsRole::ORANGTUA->value) {
-        //         $user->studentParent()->create([
-        //             'student_id' => fake()->randomElement(User::role(EnumsRole::SISWA->value)->pluck('id')->toArray()),
-        //             'hubungan' => fake()->randomElement(['Ayah', 'Ibu', 'Wali']),
-        //         ]);
-        //     }
-        // });
+        /*User::factory(300)->create()->each(function ($user) {*/
+        /*    $role = Role::all()->random();*/
+        /**/
+        /*    while ($role->name === EnumsRole::ADMIN->value) {*/
+        /*        $role = Role::all()->random();*/
+        /*    }*/
+        /**/
+        /*    $user->assignRole($role->name);*/
+        /**/
+        /*    if ($role->name === EnumsRole::SISWA->value) {*/
+        /*        $user->student()->create([*/
+        /*            'asal_sekolah' => fake()->company(),*/
+        /*            'cabang_id' => fake()->randomElement(*/
+        /*                Cabang::all()->pluck('id')->toArray()*/
+        /*            ),*/
+        /*        ]);*/
+        /*    }*/
+        /**/
+        /*    if ($role->name === EnumsRole::GURU->value) {*/
+        /*        $user->teacher()->create([*/
+        /*            'rekening_bank' => fake()->randomElement(['BRI', 'BCA', 'BNI', 'Mandiri']),*/
+        /*            'no_rekening' => fake()->bankAccountNumber(),*/
+        /*        ]);*/
+        /*    }*/
+        /**/
+        /*    if ($role->name === EnumsRole::ORANGTUA->value) {*/
+        /*        $user->studentParent()->create([*/
+        /*            'student_id' => fake()->randomElement(User::role(EnumsRole::SISWA->value)->pluck('id')->toArray()),*/
+        /*            'hubungan' => fake()->randomElement(['Ayah', 'Ibu', 'Wali']),*/
+        /*        ]);*/
+        /*    }*/
+        /*});*/
 
 
 

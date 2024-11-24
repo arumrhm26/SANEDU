@@ -42,7 +42,7 @@ Route::group(
         Route::get('/download-riwayat-kehadiran/{tahunAjaran}', [PDFController::class, 'riwayatKehadiran'])->name('siswa.riwayat-kehadiran.pdf');
         Route::get('/download-rekapan-absen/{pertemuan}', [PDFController::class, 'rekapanAbsen'])->name('rekapan-absen.pdf');
 
-        Route::get('/download-rekapan-absen-perbulan/{tahunAjaran}/{bulan}', [PDFController::class, 'rekapanAbsePerbulan'])->name('rekapan-absen-perbulan.pdf');
+        Route::get('/download-rekapan-absen-perbulan/{tahunAjaran}/{bulan}', [PDFController::class, 'rekapanAbsenPerbulan'])->name('rekapan-absen-perbulan.pdf');
 
         Route::get('/download-rekapan-progres/{materi}', [PDFController::class, 'rekapanProgres'])->name('rekapan-progres.pdf');
 

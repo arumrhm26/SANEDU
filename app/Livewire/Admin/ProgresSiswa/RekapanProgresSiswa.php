@@ -12,6 +12,7 @@ use App\Traits\WithPerPage;
 use App\Traits\WithRefreshList;
 use App\Traits\WithSearch;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Maatwebsite\Excel\Facades\Excel;
@@ -20,7 +21,7 @@ use Maatwebsite\Excel\Facades\Excel;
 class RekapanProgresSiswa extends Component
 {
 
-    use WithPagination, WithPerPage, WithRefreshList, WithSearch;
+    use WithPagination, WithPerPage, WithSearch;
 
     public $tahunAjaranId;
     public $gradeId;
@@ -57,25 +58,6 @@ class RekapanProgresSiswa extends Component
     public $materiId;
     public $materis = [];
 
-    public function exportExcel()
-    {
-
-        if (!$this->materiId) {
-            return;
-        }
-
-        $tahunAjaranName = TahunAjaran::find($this->tahunAjaranId)->name;
-        // replace "/" in tahun ajaran name
-        $tahunAjaranName = str_replace('/', '-', $tahunAjaranName);
-        $classRoomName = ClassRoom::find($this->classRoomId)->full_name;
-        $subjectName = Subject::find($this->subjectId)->name;
-        $materiName = Materi::find($this->materiId)->name;
-
-        $fileName = "{$tahunAjaranName}_{$classRoomName}_{$subjectName}_{$materiName}.xlsx";
-
-        return (new ProgresSiswaExport)->forMateriId($this->materiId)->download($fileName);
-    }
-
     public function exportPDF()
     {
         if (!$this->materiId) {
@@ -85,20 +67,44 @@ class RekapanProgresSiswa extends Component
         return redirect()->route('rekapan-progres.pdf', $this->materiId);
     }
 
+    #[On('updated-nilai')]
+    public function updatedNilai($studentId, $indikatorId)
+    {
+        $this->getStudentIndikator($studentId, $indikatorId);
+    }
+
+
     public function mount()
     {
         $this->perPage = 100;
     }
 
+    public function indikators()
+    {
+        return Materi::query()
+            ->where('id', $this->materiId)
+            ->first()
+            ->indikators ?? [];
+    }
+
+    public function students()
+    {
+        return ClassRoom::query()
+            ->where('id', $this->classRoomId)
+            ->first()
+            ->students ?? [];
+    }
+
+    public function getStudentIndikator($studentId, $indikatorId)
+    {
+        return StudentIndikator::query()
+            ->where('student_id', $studentId)
+            ->where('indikator_id', $indikatorId)
+            ->first();
+    }
+
     public function render()
     {
-        return view('livewire.admin.progres-siswa.rekapan-progres-siswa', [
-            'studentIndikators' => StudentIndikator::with(['student', 'indikator'])
-                ->whereHas('indikator', function ($query) {
-                    $query->where('materi_id', $this->materiId);
-                    $query->whereLike('name', "%$this->search%");
-                })
-                ->paginate($this->perPage),
-        ]);
+        return view('livewire.admin.progres-siswa.rekapan-progres-siswa', []);
     }
 }

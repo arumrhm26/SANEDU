@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Modal;
 
+use App\Models\Pertemuan;
 use App\Models\PertemuanStudent;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -12,6 +13,8 @@ class EditAbsenSiswa extends Component
 
     public ?PertemuanStudent $pertemuanStudent;
 
+    public Pertemuan $pertemuan;
+
     public $status;
 
     #[On('open-modal')]
@@ -20,9 +23,10 @@ class EditAbsenSiswa extends Component
         if ($component !== 'edit-absen-siswa') {
             return;
         }
-
         $this->pertemuanStudent = $pertemuanStudent;
         $this->status = $pertemuanStudent->pertemuanStatus->id;
+
+        $this->pertemuan = $pertemuanStudent->pertemuan;
     }
 
     #[On('close-modal')]
@@ -47,6 +51,7 @@ class EditAbsenSiswa extends Component
         Toaster::success('Absen berhasil diubah');
         $this->dispatch('refresh-list');
     }
+
 
     public function render()
     {

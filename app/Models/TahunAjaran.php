@@ -28,9 +28,8 @@ class TahunAjaran extends Model
 
     public function teacherCount()
     {
-        return $this->classRooms->map(function ($classRoom) {
-            return $classRoom->teacherCount();
-        })->sum();
+        // count all teacher in teacher model
+        return Teacher::count();
     }
 
     public function getBulan()

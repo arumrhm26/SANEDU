@@ -96,21 +96,20 @@
                     @forelse ($pertemuan->pertemuanStudents as $item)
                         <tr>
 
-                            @if ($loop->first)
-                                <td rowspan="{{ $pertemuan->pertemuanStudents->count() ?? 1 }}">
-                                    {{ $pertemuan?->tanggal->isoFormat('DD-MM-Y') ?? '-' }}
-                                </td>
+                            <td>
+                                {{ $pertemuan?->tanggal->isoFormat('DD-MM-Y') ?? '-' }}
+                            </td>
 
-                                <td rowspan="{{ $pertemuan->pertemuanStudents->count() ?? 1 }}">
-                                    {{ $pertemuan?->waktu_mulai ?? '-' }}
-                                    -
-                                    {{ $pertemuan?->waktu_selesai ?? '-' }}
-                                </td>
+                            <td>
+                                {{ $pertemuan?->waktu_mulai ?? '-' }}
+                                -
+                                {{ $pertemuan?->waktu_selesai ?? '-' }}
+                            </td>
 
-                                <td rowspan="{{ $pertemuan->pertemuanStudents->count() ?? 1 }}">
-                                    {{ $pertemuan?->materi?->name ?? '-' }}
-                                </td>
-                            @endif
+                            <td>
+                                {{ $pertemuan?->materi?->name ?? '-' }}
+                            </td>
+
                             <td>{{ $item?->student?->user?->name ?? '-' }}</td>
                             <td>{{ $item?->jam_masuk ?? '-' }}</td>
                             <td>{{ $item?->pertemuanStatus?->name ?? '-' }}</td>
